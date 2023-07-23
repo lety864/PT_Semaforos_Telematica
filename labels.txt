@@ -1,0 +1,7 @@
+ambulance
+person
+car
+motorcycle
+bus
+truck
+van
