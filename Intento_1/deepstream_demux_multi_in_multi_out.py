@@ -44,10 +44,16 @@ file_loop = False
 perf_data = None
 
 MAX_DISPLAY_LEN = 64
-PGIE_CLASS_ID_VEHICLE = 0
-PGIE_CLASS_ID_BICYCLE = 1
-PGIE_CLASS_ID_PERSON = 2
-PGIE_CLASS_ID_ROADSIGN = 3
+
+#ID de las clases a detectar
+PGIE_CLASS_ID_ambulance=0
+PGIE_CLASS_ID_person=1
+PGIE_CLASS_ID_car=2
+PGIE_CLASS_ID_motorcycle=3
+PGIE_CLASS_ID_bus=4
+PGIE_CLASS_ID_truck=5
+PGIE_CLASS_ID_van=6
+
 MUXER_OUTPUT_WIDTH = 540
 MUXER_OUTPUT_HEIGHT = 540  # 1080
 MUXER_BATCH_TIMEOUT_USEC = 4000000
@@ -56,7 +62,7 @@ TILED_OUTPUT_HEIGHT = 360  # 720
 GST_CAPS_FEATURES_NVMM = "memory:NVMM"
 OSD_PROCESS_MODE = 0
 OSD_DISPLAY_TEXT = 1
-pgie_classes_str = ["Vehicle", "TwoWheeler", "Person", "RoadSign"]
+pgie_classes_str = ["Ambulancia", "Persona", "Carro", "Moto","Bus","Camion","Van"]
 
 
 def pgie_src_pad_buffer_probe(pad, info, u_data):
@@ -100,10 +106,13 @@ def pgie_src_pad_buffer_probe(pad, info, u_data):
         l_obj = frame_meta.obj_meta_list
         num_rects = frame_meta.num_obj_meta
         obj_counter = {
-            PGIE_CLASS_ID_VEHICLE: 0,
-            PGIE_CLASS_ID_PERSON: 0,
-            PGIE_CLASS_ID_BICYCLE: 0,
-            PGIE_CLASS_ID_ROADSIGN: 0,
+	    PGIE_CLASS_ID_ambulance:0,
+	    PGIE_CLASS_ID_person:0,
+	    PGIE_CLASS_ID_car:0,
+	    PGIE_CLASS_ID_motorcycle:0,
+	    PGIE_CLASS_ID_bus:0,
+	    PGIE_CLASS_ID_truck:0,
+	    PGIE_CLASS_ID_van:0,
         }
         while l_obj is not None:
             try:
@@ -121,10 +130,10 @@ def pgie_src_pad_buffer_probe(pad, info, u_data):
             frame_number,
             "Number of Objects=",
             num_rects,
-            "Vehicle_count=",
-            obj_counter[PGIE_CLASS_ID_VEHICLE],
+            "Ambulance_count=",
+            obj_counter[PGIE_CLASS_ID_ambulance],
             "Person_count=",
-            obj_counter[PGIE_CLASS_ID_PERSON],
+            obj_counter[PGIE_CLASS_ID_person],
 	    "Stream=",
 	    frame_meta.pad_index
         )

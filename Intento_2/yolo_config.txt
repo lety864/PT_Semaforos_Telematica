@@ -1,5 +1,5 @@
 ################################################################################
-# SPDX-FileCopyrightText: Copyright (c) 2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+# SPDX-FileCopyrightText: Copyright (c) 2019-2022 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -69,10 +69,11 @@ model-engine-file=../Archivos_generados/model_b2_gpu0_fp16.engine
 #Direccion de los labels del modelo (YOLO)
 labelfile-path=../Archivos_generados/labels.txt
 
+#se cambia dependiendo de la cantidad de archivos/camaras a utilizar
 batch-size=2
-network-mode=2
+network-mode=2 #2 por FP16 ya que FP32 es mas pesado e INT8 no es soportado en JetsonNano
 num-detected-classes=7
-interval=2
+interval=4
 gie-unique-id=1
 process-mode=1
 network-type=0
@@ -100,4 +101,3 @@ pre-cluster-threshold=0.7
 topk=50
 nms-iou-threshold=0.5
 pre-cluster-threshold=0.3
-

@@ -55,49 +55,32 @@
 [property]
 gpu-id=0
 net-scale-factor=0.0039215697906911373
+model-file=/opt/nvidia/deepstream/deepstream-6.0/samples/models/Primary_Detector/resnet10.caffemodel
+proto-file=/opt/nvidia/deepstream/deepstream-6.0/samples/models/Primary_Detector/resnet10.prototxt
+model-engine-file=resnet10.caffemodel_b1_gpu0_fp16.engine
+labelfile-path=/opt/nvidia/deepstream/deepstream-6.0/samples/models/Primary_Detector/labels.txt
+#int8-calib-file=/opt/nvidia/deepstream/deepstream-6.0/samples/models/Primary_Detector/cal_trt.bin
+force-implicit-batch-dim=1
+batch-size=1
+process-mode=1
 model-color-format=0
-
-#onnx para 1 o 2 batches
-#onnx-file=../Archivos_generados/ambulance_v5_b1.onnx
-onnx-file=../Archivos_generados/ambulance_v5_b2.onnx
-
-#Engine files para 1 o 2 videos
-#model-engine-file=../Archivos_generados/model_b1_gpu0_fp16.engine
-model-engine-file=../Archivos_generados/model_b2_gpu0_fp16.engine
-
-
-#Direccion de los labels del modelo (YOLO)
-labelfile-path=../Archivos_generados/labels.txt
-
-batch-size=2
 network-mode=2
-num-detected-classes=7
+num-detected-classes=4
 interval=2
 gie-unique-id=1
-process-mode=1
-network-type=0
+output-blob-names=conv2d_bbox;conv2d_cov/Sigmoid
 cluster-mode=2
-model-color-format=0
 
-parse-bbox-func-name=NvDsInferParseYolo
-#parse-bbox-func-name=NvDsInferParseYoloCuda
-custom-lib-path=../nvdsinfer_custom_impl_Yolo/libnvdsinfer_custom_impl_Yolo.so
-engine-create-func-name=NvDsInferYoloCudaEngineGet
+[source1]
+enable=1
+type=5
+camera-width=640
+camera-height=480
+camera-fps-n=30
+camera-fps-d=1
+camera-csi-sensor-id=0
 
 [class-attrs-all]
 pre-cluster-threshold=0.2
 topk=20
 nms-iou-threshold=0.5
-
-## Per class configurations (ambulance)
-[class-attrs-0]
-topk=20
-nms-iou-threshold=0.5
-pre-cluster-threshold=0.7
-
-## Per class configurations (persons)
-[class-attrs-1]
-topk=50
-nms-iou-threshold=0.5
-pre-cluster-threshold=0.3
-
