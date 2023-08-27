@@ -73,17 +73,28 @@ labelfile-path=../Archivos_generados/labels.txt
 batch-size=2
 network-mode=2 #2 por FP16 ya que FP32 es mas pesado e INT8 no es soportado en JetsonNano
 num-detected-classes=7
+
+#Intervalo para 2 videos a 30fps 1080p
+#interval=4
+
+#Intervalo para 2 streams
 interval=4
+
 gie-unique-id=1
 process-mode=1
 network-type=0
 cluster-mode=2
 model-color-format=0
 
+maintain-aspect-ratio=0
+
+
 parse-bbox-func-name=NvDsInferParseYolo
 #parse-bbox-func-name=NvDsInferParseYoloCuda
 custom-lib-path=../nvdsinfer_custom_impl_Yolo/libnvdsinfer_custom_impl_Yolo.so
 engine-create-func-name=NvDsInferYoloCudaEngineGet
+
+
 
 [class-attrs-all]
 pre-cluster-threshold=0.2

@@ -1,0 +1,1 @@
+./cameras_2 "nvarguscamerasrc sensor_id=1 ee-mode=1 ! nvvidconv ! nvv4l2h264enc ! h264parse ! rtph264pay name=pay0 pt=96"

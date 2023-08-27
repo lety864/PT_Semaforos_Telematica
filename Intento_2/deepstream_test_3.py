@@ -116,9 +116,11 @@ def pgie_src_pad_buffer_probe(pad,info,u_data):
 		    frame_number,
 		    "Number of Objects=",
 		    num_rects,
-		    "Ambulance_count=",
+                    "Automobile=",
+                    obj_counter[PGIE_CLASS_ID_car]+obj_counter[PGIE_CLASS_ID_motorcycle]+obj_counter[PGIE_CLASS_ID_bus]+obj_counter[PGIE_CLASS_ID_truck]+obj_counter[PGIE_CLASS_ID_van],
+		    "Ambulance=",
 		    obj_counter[PGIE_CLASS_ID_ambulance],
-		    "Person_count=",
+		    "Person=",
 		    obj_counter[PGIE_CLASS_ID_person],
 		    "Stream=",
 		    frame_meta.pad_index
@@ -339,7 +341,7 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
     streammux.set_property('width', 1920)
     streammux.set_property('height', 1080)
     streammux.set_property('batch-size', number_sources)
-    streammux.set_property('batched-push-timeout', 4000000)
+    streammux.set_property('batched-push-timeout', 4000000)#4000000
     if requested_pgie == "nvinferserver" and config != None:
         pgie.set_property('config-file-path', config)
     elif requested_pgie == "nvinferserver-grpc" and config != None:
