@@ -1,0 +1,6 @@
+python3 deepstream_test_3.py -i file:///home/jetson/Desktop/PT/test/1.mp4 file:///home/jetson/Desktop/PT/test/2.mp4 
+
+python3 deepstream_test_3.py -i rtsp://127.0.0.1:8554/test rtsp://127.0.0.1:8555/test --no-display
+
+source ../../../../../env/bin/activate
+
