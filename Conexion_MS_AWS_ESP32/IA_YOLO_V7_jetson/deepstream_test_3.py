@@ -43,7 +43,7 @@ from datetime import datetime
 
 
 #inicialiacion de objeto Serial para la conexion con la esp32
-esp32 = serial.Serial(port='/dev/ttyUSB0',baudrate=9600,timeout=0.1)
+esp32 = serial.Serial(port='/dev/ttyUSB0',baudrate=9600,timeout=0.5,parity=serial.PARITY_NONE,bytesize=serial.EIGHTBITS,stopbits=serial.STOPBITS_ONE)
 
 
 import pyds
@@ -79,8 +79,8 @@ framesTiempo=0
 
 
 #funcion para enviar la informacion de la inferencia hacia la ESP32
-def write_read(x):
-        esp32.write(bytes(x, 'utf-8')) #informacion a enviar en bytes
+#def write_read(x):
+        #esp32.write(bytes(x, 'utf-8')) #informacion a enviar en bytes
         #data = esp32.readline() #leyendo del puerto serial la informacion mandada por el arduino
         #return data
 
@@ -146,11 +146,19 @@ def pgie_src_pad_buffer_probe(pad,info,u_data):
          now = datetime.now() #obtener fecha y hora
          stringFecha= now.strftime("%d/%m/%Y")
          stringHora = now.strftime("%H:%M:%S")
-         stringJSON="{\"Fecha\":\""+stringFecha+"\",\"Hora\":\""+stringHora+"\",\"Source\":[{"+stringJSON_0+"},{"+stringJSON_1+"}]}"
+         stringJSON="{\"Fecha\":\""+stringFecha+"\",\"Hora\":\""+stringHora+"\",\"Source\":[{"+stringJSON_0+"},{"+stringJSON_1+"}]}\n"
         
-         write_read(stringJSON)
-         #respuestaEsp32 = write_read(stringJSON) #Envia la informacion
-         #print(respuestaEsp32)
+         esp32.write(stringJSON.encode('ascii')) #informacion a enviar en bytes
+         esp32.flush()
+         #try:
+          ##incoming = esp32.readline().decode("utf-8")
+          #print(incoming)
+         #except:
+          #print(e)
+         # pass
+          #write_read(stringJSON)
+          #respuestaEsp32 = write_read(stringJSON) #Envia la informacion
+          #print(respuestaEsp32)
 
         if not silent:
                 print(
@@ -179,7 +187,7 @@ def pgie_src_pad_buffer_probe(pad,info,u_data):
         try:
             l_frame=l_frame.next
             framesTiempo+=1
-            if framesTiempo==300: #120-2seg 240-4seg 300-5seg
+            if framesTiempo==240: #120-2seg 240-4seg 300-5seg
               framesTiempo=0
 		
         except StopIteration:
