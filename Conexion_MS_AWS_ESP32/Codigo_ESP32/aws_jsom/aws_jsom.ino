@@ -18,9 +18,14 @@ void connectAWS()
 {
   //Begin WiFi in station mode
   WiFi.mode(WIFI_STA); 
-  WiFi.begin(ssid, password);
+  //RED con contraseña
+  //WiFi.begin(ssid, password);
+  //RED Poli
+    WiFi.begin("Wi-Fi IPN",NULL);
+  
+  
 
-  //Serial.println("Connecting to Wi-Fi");
+  Serial.println("Connecting to Wi-Fi");
 
   //Wait for WiFi connection
   while (WiFi.status() != WL_CONNECTED){
@@ -82,7 +87,7 @@ void publishMessage()
   
   
   //Publish to the topic
-  //Serial.println(jsonSemaforo);
+  Serial.println(jsonSemaforo);
   
   if(mqtt_client.publish(AWS_IOT_PUBLISH_TOPIC, jsonSemaforo )){ //verificar si publico o no
     Serial.println("Sent a message");

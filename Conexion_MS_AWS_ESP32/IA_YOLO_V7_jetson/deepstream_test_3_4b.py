@@ -18,7 +18,7 @@
 ################################################################################
 
 import sys
-sys.path.append('../')
+sys.path.append('../../') #direccion hacia la carpeta SyS
 from pathlib import Path
 import gi
 import configparser
@@ -33,6 +33,18 @@ import platform
 from common.is_aarch_64 import is_aarch64
 from common.bus_call import bus_call
 from common.FPS import PERF_DATA
+
+
+#librerias para enviar informacion del codigo y la inferencia hacia la ESP32
+import serial
+import time
+
+from datetime import datetime
+
+
+#inicialiacion de objeto Serial para la conexion con la esp32
+#esp32 = serial.Serial(port='/dev/ttyUSB0',baudrate=9600,timeout=0.5,parity=serial.PARITY_NONE,bytesize=serial.EIGHTBITS,stopbits=serial.STOPBITS_ONE)
+
 
 import pyds
 
@@ -61,6 +73,17 @@ OSD_PROCESS_MODE= 0
 OSD_DISPLAY_TEXT= 1
 pgie_classes_str = ["Ambulancia", "Persona", "Carro", "Moto","Bus","Camion","Van"]
 
+global framesTiempo #cantidad en tiempo para que envie informacion 12= 2 seg
+
+framesTiempo=0
+
+
+#funcion para enviar la informacion de la inferencia hacia la ESP32
+#def write_read(x):
+        #esp32.write(bytes(x, 'utf-8')) #informacion a enviar en bytes
+        #data = esp32.readline() #leyendo del puerto serial la informacion mandada por el arduino
+        #return data
+
 # pgie_src_pad_buffer_probe  will extract metadata received on tiler sink pad
 # and update params for drawing rectangle, object information etc.
 def pgie_src_pad_buffer_probe(pad,info,u_data):
@@ -76,6 +99,7 @@ def pgie_src_pad_buffer_probe(pad,info,u_data):
     # C address of gst_buffer as input, which is obtained with hash(gst_buffer)
     batch_meta = pyds.gst_buffer_get_nvds_batch_meta(hash(gst_buffer))
     l_frame = batch_meta.frame_meta_list
+    global framesTiempo #cantidad en tiempo para que envie informacion 12= 2 seg
     while l_frame is not None:
         try:
             # Note that l_frame.data needs a cast to pyds.NvDsFrameMeta
@@ -90,6 +114,7 @@ def pgie_src_pad_buffer_probe(pad,info,u_data):
         frame_number=frame_meta.frame_num
         l_obj=frame_meta.obj_meta_list
         num_rects = frame_meta.num_obj_meta
+        amountCars = 0 #Valor agregado para sumar cada vehiculo menos ambulancias
         obj_counter = {
 	    PGIE_CLASS_ID_ambulance:0,
 	    PGIE_CLASS_ID_person:0,
@@ -110,21 +135,55 @@ def pgie_src_pad_buffer_probe(pad,info,u_data):
                 l_obj=l_obj.next
             except StopIteration:
                 break
+           
+        amountCars=obj_counter[PGIE_CLASS_ID_car]+obj_counter[PGIE_CLASS_ID_motorcycle]+obj_counter[PGIE_CLASS_ID_bus]+obj_counter[PGIE_CLASS_ID_truck]+obj_counter[PGIE_CLASS_ID_van]
+        #if framesTiempo==0:
+           #stringJSON_0="\"ID\":\""+str(frame_meta.pad_index)+"\",\"Autos\":\""+str(amountCars)+"\",\"Ambulancias\":\""+str(obj_counter[PGIE_CLASS_ID_ambulance])+"\",\"Peatones\":\""+str(obj_counter[PGIE_CLASS_ID_person])+"\""
+        
+        #if framesTiempo==1:
+         #stringJSON_1="\"ID\":\""+str(frame_meta.pad_index)+"\",\"Autos\":\""+str(amountCars)+"\",\"Ambulancias\":\""+str(obj_counter[PGIE_CLASS_ID_ambulance])+"\",\"Peatones\":\""+str(obj_counter[PGIE_CLASS_ID_person])+"\""
+
+        #if framesTiempo==2:
+         #stringJSON_2="\"ID\":\""+str(frame_meta.pad_index)+"\",\"Autos\":\""+str(amountCars)+"\",\"Ambulancias\":\""+str(obj_counter[PGIE_CLASS_ID_ambulance])+"\",\"Peatones\":\""+str(obj_counter[PGIE_CLASS_ID_person])+"\""
+
+        #if framesTiempo==3:
+         #stringJSON_3="\"ID\":\""+str(frame_meta.pad_index)+"\",\"Autos\":\""+str(amountCars)+"\",\"Ambulancias\":\""+str(obj_counter[PGIE_CLASS_ID_ambulance])+"\",\"Peatones\":\""+str(obj_counter[PGIE_CLASS_ID_person])+"\""
+         
+         #now = datetime.now() #obtener fecha y hora
+         #stringFecha= now.strftime("%d/%m/%Y")
+         #stringHora = now.strftime("%H:%M:%S")
+         #stringJSON="{\"Fecha\":\""+stringFecha+"\",\"Hora\":\""+stringHora+"\",\"Source\":[{"+stringJSON_0+"},{"+stringJSON_1+"},{"+stringJSON_2+"},{"+stringJSON_3+"}]}\n"
+        
+         ##esp32.write(stringJSON.encode('ascii')) #informacion a enviar en bytes
+         ##esp32.flush()
+         #try:
+          ##incoming = esp32.readline().decode("utf-8")
+          #print(incoming)
+         #except:
+          #print(e)
+         # pass
+          #write_read(stringJSON)
+          #respuestaEsp32 = write_read(stringJSON) #Envia la informacion
+          #print(respuestaEsp32)
+
         if not silent:
-	        print(
+                print(
 		    "Frame Number=",
 		    frame_number,
 		    "Number of Objects=",
 		    num_rects,
                     "Automobile=",
-                    obj_counter[PGIE_CLASS_ID_car]+obj_counter[PGIE_CLASS_ID_motorcycle]+obj_counter[PGIE_CLASS_ID_bus]+obj_counter[PGIE_CLASS_ID_truck]+obj_counter[PGIE_CLASS_ID_van],
+                    amountCars,
 		    "Ambulance=",
 		    obj_counter[PGIE_CLASS_ID_ambulance],
 		    "Person=",
 		    obj_counter[PGIE_CLASS_ID_person],
 		    "Stream=",
-		    frame_meta.pad_index
-		)
+		    frame_meta.pad_index,
+                    "frame",framesTiempo)
+                #if framesTiempo==3:
+                  #print(stringJSON)
+                
 
         # Update frame rate through this probe
         stream_index = "stream{0}".format(frame_meta.pad_index)
@@ -133,6 +192,10 @@ def pgie_src_pad_buffer_probe(pad,info,u_data):
 
         try:
             l_frame=l_frame.next
+            framesTiempo+=1
+            if framesTiempo==240: #120-2seg 240-4seg 300-5seg
+              framesTiempo=0
+		
         except StopIteration:
             break
 
@@ -349,7 +412,7 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
     elif requested_pgie == "nvinfer" and config != None:
         pgie.set_property('config-file-path', config)
     else:
-        pgie.set_property('config-file-path', "yolo_config2.txt")
+        pgie.set_property('config-file-path', "yolo_config_b4.txt")
     pgie_batch_size=pgie.get_property("batch-size")
     if(pgie_batch_size != number_sources):
         print("WARNING: Overriding infer-config batch-size",pgie_batch_size," with number of sources ", number_sources," \n")

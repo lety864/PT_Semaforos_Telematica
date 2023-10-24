@@ -1,6 +1,13 @@
-python3 deepstream_test_3.py -i file:///home/jetson/Desktop/PT/test/1.mp4 file:///home/jetson/Desktop/PT/test/2.mp4 
+python3 deepstream_test_3_2b.py -i file:///home/jetson/Desktop/PT/test/1.mp4 file:///home/jetson/Desktop/PT/test/2.mp4 
 
-python3 deepstream_test_3.py -i rtsp://127.0.0.1:8554/test rtsp://127.0.0.1:8555/test --no-display
+python3 deepstream_test_3.py_2b -i file:///home/jetson/Desktop/PT/test/1.mp4 file:///home/jetson/Desktop/PT/test/2.mp4 --no-display
+
+python3 deepstream_test_3.py_2b -i rtsp://127.0.0.1:8554/test rtsp://127.0.0.1:8555/test --no-display
 
 source ../../../../../env/bin/activate
+
+
+##codigos para 4 fuentes
+
+python3 deepstream_test_3_4b.py -i file:///home/jetson/Desktop/PT/test/1.mp4 file:///home/jetson/Desktop/PT/test/2.mp4 file:///home/jetson/Desktop/PT/test/v1.mp4 file:///home/jetson/Desktop/PT/test/v2.mp4 --file-loop
 
