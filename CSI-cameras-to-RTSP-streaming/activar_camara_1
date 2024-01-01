@@ -1,3 +1,2 @@
-./cameras_1 "nvarguscamerasrc sensor_id=0  ! video/x-raw(memory:NVMM), width=1920, height=1080!nvvidconv flip-method=2 ! nvv4l2h264enc  ! h264parse ! rtph264pay name=pay0 pt=96"
-
+./cameras_1 "nvarguscamerasrc sensor_id=0  ! video/x-raw(memory:NVMM), width=1920, height=1080,framerate=(fraction)8/1 !nvvidconv flip-method=2 ! nvv4l2h264enc  ! h264parse ! rtph264pay name=pay0 pt=96"
 

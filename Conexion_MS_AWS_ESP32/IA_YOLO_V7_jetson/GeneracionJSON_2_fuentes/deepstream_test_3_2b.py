@@ -18,7 +18,7 @@
 ################################################################################
 
 import sys
-sys.path.append('../../') #direccion hacia la carpeta SyS
+sys.path.append('../../../') #direccion hacia la carpeta SyS
 from pathlib import Path
 import gi
 import configparser
@@ -33,7 +33,7 @@ import platform
 from common.is_aarch_64 import is_aarch64
 from common.bus_call import bus_call
 from common.FPS import PERF_DATA
-
+from contextlib import redirect_stdout
 
 #librerias para enviar informacion del codigo y la inferencia hacia la ESP32
 import serial
@@ -562,5 +562,9 @@ def parse_args():
 
 if __name__ == '__main__':
     stream_paths, pgie, config, disable_probe = parse_args()
-    sys.exit(main(stream_paths, pgie, config, disable_probe))
-
+    if no_display or silent:
+        with open('/dev/null','w') as fnull:
+            with redirect_stdout(fnull):
+                sys.exit(main(stream_paths, pgie, config, disable_probe))
+    else:
+        sys.exit(main(stream_paths, pgie, config, disable_probe))

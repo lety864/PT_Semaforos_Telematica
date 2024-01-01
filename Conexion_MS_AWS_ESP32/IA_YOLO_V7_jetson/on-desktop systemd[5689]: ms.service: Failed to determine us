@@ -1,0 +1,11 @@
+[0;1;31m●[0m ms.service - ms: Modulo de sensado activandose al iniciar
+   Loaded: loaded (/etc/systemd/system/ms.service; enabled; vendor preset: enabled)
+   Active: [0;1;31mfailed[0m (Result: exit-code) since Sun 2023-11-05 19:50:11 CST; 28s ago
+  Process: 5689 ExecStart=/bin/bash -c while [ ! -e /dev/ttyUSB0 ]; do sleep 1; done; /usr/local/bin/ms_1.sh [0;1;31m(code=exited, status=217/USER)[0m
+ Main PID: 5689 (code=exited, status=217/USER)
+
+nov 05 19:50:11 jetson-desktop systemd[1]: Started ms: Modulo de sensado activandose al iniciar.
+nov 05 19:50:11 jetson-desktop systemd[5689]: [0;1;31m[0;1;39m[0;1;31mms.service: Failed to determine user credentials: No such process[0m
+nov 05 19:50:11 jetson-desktop systemd[5689]: [0;1;31m[0;1;39m[0;1;31mms.service: Failed at step USER spawning /bin/bash: No such process[0m
+nov 05 19:50:11 jetson-desktop systemd[1]: [0;1;39m[0;1;31m[0;1;39mms.service: Main process exited, code=exited, status=217/USER[0m
+nov 05 19:50:11 jetson-desktop systemd[1]: [0;1;39m[0;1;31m[0;1;39mms.service: Failed with result 'exit-code'.[0m

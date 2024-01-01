@@ -18,7 +18,7 @@
 ################################################################################
 
 import sys
-sys.path.append('../../') #direccion hacia la carpeta SyS
+sys.path.append('../../../') #direccion hacia la carpeta SyS
 from pathlib import Path
 import gi
 import configparser
@@ -349,7 +349,7 @@ def main(args, requested_pgie=None, config=None, disable_probe=False):
     elif requested_pgie == "nvinfer" and config != None:
         pgie.set_property('config-file-path', config)
     else:
-        pgie.set_property('config-file-path', "yolo_config.txt")
+        pgie.set_property('config-file-path', "dp_2_fuentes.txt")
     pgie_batch_size=pgie.get_property("batch-size")
     if(pgie_batch_size != number_sources):
         print("WARNING: Overriding infer-config batch-size",pgie_batch_size," with number of sources ", number_sources," \n")

@@ -1,0 +1,27 @@
+######################## 1_FUENTE##############################
+python3 dp_1_fuente.py -i file:///home/jetson/Desktop/Videos_semaforos/1.mp4 file:///home/jetson/Desktop/Videos_semaforos/2.mp4 
+
+python3 dp_1_fuente.py -i file:///home/jetson/Desktop/PT/test/1.mp4 --no-display
+
+python3 dp_1_fuente.py -i rtsp://127.0.0.1:8554/test --no-display
+
+
+######################## 2_FUENTE##############################
+
+python3 dp_2_fuente.py -i file:///home/jetson/Desktop/Videos_semaforos/1.mp4 file:///home/jetson/Desktop/Videos_semaforos/2.mp4 
+
+python3 dp_2_fuente.py -i file:///home/jetson/Desktop/PT/test/1.mp4 file:///home/jetson/Desktop/Videos_semaforos/2.mp4 --no-display
+
+python3 dp_2_fuente.py -i rtsp://127.0.0.1:8554/test rtsp://127.0.0.1:8555/test --no-display
+
+
+################################   Activacion   ################
+
+source ../../../../../../env/bin/activate
+
+cd Desktop/git_environment/PT_Semaforos_Telematica/Conexion_MS_AWS_ESP32/IA_YOLO_V7_jetson/
+
+
+
+
+

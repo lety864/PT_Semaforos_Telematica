@@ -19,9 +19,9 @@ void connectAWS()
   //Begin WiFi in station mode
   WiFi.mode(WIFI_STA); 
   //RED con contraseña
-  //WiFi.begin(ssid, password);
+  WiFi.begin(ssid, password);
   //RED Poli
-    WiFi.begin("Wi-Fi IPN",NULL);
+    //WiFi.begin("Wi-Fi IPN",NULL);
   
   
 

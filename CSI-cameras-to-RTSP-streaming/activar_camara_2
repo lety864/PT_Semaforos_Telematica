@@ -1,1 +1,3 @@
-./cameras_2 "nvarguscamerasrc sensor_id=1 ! nvvidconv ! nvv4l2h264enc control-rate=0  ! h264parse ! rtph264pay name=pay0 pt=96"
+./cameras_2 "nvarguscamerasrc sensor_id=1  ! video/x-raw(memory:NVMM), width=1920, height=1080,framerate=(fraction)15/1 !nvvidconv flip-method=2 ! nvv4l2h264enc  ! h264parse ! rtph264pay name=pay0 pt=96"
+
+
