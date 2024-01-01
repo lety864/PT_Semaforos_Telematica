@@ -11,6 +11,6 @@ cd Desktop/git_environment/PT_Semaforos_Telematica/Conexion_MS_AWS_ESP32/IA_YOLO
 
 ################################   Activacion   ################
 
-source ../../../../../env/bin/activate
+source ../../../../../../env/bin/activate
 
 cd Desktop/git_environment/PT_Semaforos_Telematica/Conexion_MS_AWS_ESP32/IA_YOLO_V7_jetson/
