@@ -6,7 +6,7 @@
 
 // MQTT topics for the device
 #define AWS_IOT_PUBLISH_TOPIC   "esp32/pub"
-#define AWS_IOT_SUBSCRIBE_TOPIC "esp32/sub"
+//#define AWS_IOT_SUBSCRIBE_TOPIC "esp32/sub"
 
 
 WiFiClientSecure wifi_client = WiFiClientSecure();
@@ -43,7 +43,7 @@ void connectAWS()
   mqtt_client.begin(AWS_IOT_ENDPOINT, 8883, wifi_client);
 
   //Set action to be taken on incoming messages
-  mqtt_client.onMessage(incomingMessageHandler);
+  //mqtt_client.onMessage(incomingMessageHandler);
 
   Serial.print("Connecting to AWS IOT");
 
@@ -60,7 +60,7 @@ void connectAWS()
   }
 
   //Subscribe to a topic
-  mqtt_client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
+  //mqtt_client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
 
   Serial.println("AWS IoT Connected!");
 }
