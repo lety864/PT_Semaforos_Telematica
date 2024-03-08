@@ -15,9 +15,10 @@ PubSubClient client(net);
 void connectAWS()
 {
   WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  //RED Poli
-  //WiFi.begin("Wi-Fi IPN",NULL);
+  if(ssid=="Wi-Fi IPN")
+    WiFi.begin(ssid);
+  else
+    WiFi.begin(ssid,password);
  
   Serial.println("Connecting to Wi-Fi");
  
@@ -90,6 +91,43 @@ void messageHandler(char* topic, byte* payload, unsigned int length)
   Serial.println(message);
 }
 
+void reconnectWiFi() {  //Reconectar a internet
+  // Si ya estás conectado, no hay nada que hacer
+  if (WiFi.status() == WL_CONNECTED) return;
+
+  Serial.println("Conectando a Wi-Fi...");
+  
+  // Intenta reconectar
+  if(ssid=="Wi-Fi IPN")
+    WiFi.begin(ssid);
+  else
+    WiFi.begin(ssid,password);
+
+  // Espera hasta que se establezca la conexión
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("\n¡Conectado a Wi-Fi!");
+}
+
+void ensureMqttConnection() {  //reconectar a AWS
+  if (!client.connected()) {
+    Serial.println("Reconectando al servidor AWS IoT...");
+    while (!client.connected()) {
+      if (client.connect(THINGNAME)) {
+        // Vuelve a suscribirte a los temas necesarios aquí
+        client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
+      } else {
+        Serial.print(".");
+        delay(1000);
+      }
+    }
+    Serial.println("\n¡Reconectado a AWS IoT!");
+  }
+}
+
 void setup() {
   Serial.begin(9600);
   Serial.setTimeout(500);
@@ -99,5 +137,7 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   publishMessage();
+  reconnectWiFi();
+  ensureMqttConnection();
   client.loop();
 }

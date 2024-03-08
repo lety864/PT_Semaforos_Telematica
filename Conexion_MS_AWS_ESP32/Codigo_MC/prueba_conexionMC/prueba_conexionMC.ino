@@ -147,7 +147,7 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
     if (!started)
     {
       started = true;
-      // Crea la tarea en paralelo
+      // INICIA la tarea en paralelo
 
     }
   }
