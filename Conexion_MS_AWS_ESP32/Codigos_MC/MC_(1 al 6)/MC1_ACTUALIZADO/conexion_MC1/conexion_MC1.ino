@@ -214,7 +214,8 @@ void PublishJson()
   DynamicJsonDocument doc(512);
 
   // Creando JSON
-  doc["UltimoCiclo_MC1"] = UltimoCiclo;
+  doc["UltimoCiclo"] = UltimoCiclo;
+  doc["MCID"]=1; //ID del MC
   String json;
   serializeJson(doc, json);
   // Publicar el JSON en el topic "MC/time"
