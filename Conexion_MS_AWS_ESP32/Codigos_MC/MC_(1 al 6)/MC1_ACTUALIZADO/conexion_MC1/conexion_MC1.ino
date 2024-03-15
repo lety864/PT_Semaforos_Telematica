@@ -1,7 +1,8 @@
 #include "secrets.h"
 #include <WiFiClientSecure.h>
-#include <PubSubClient.h>
+//#include <PubSubClient.h>
 #include <ArduinoJson.h>
+#include <MQTT.h>
 #include "WiFi.h"
 
 
@@ -12,6 +13,8 @@ unsigned long t_comprobador=0;
 boolean nuevoCiclo=false;
 static bool cambio=false;
 
+bool prueba_tiempo1=true;
+bool prueba_tiempo2=true;
 
 //Vairables semáforo peatonal SP1
 unsigned long tiempoP1_1 = 0;
@@ -47,7 +50,8 @@ Reinicio-->   2
 
 //VARIABLES PARA LA CONEXION AWS
 WiFiClientSecure net = WiFiClientSecure();
-PubSubClient client(net);
+MQTTClient client(256);
+//PubSubClient client(net);
 
 #define AWS_IOT_SUBSCRIBE_TOPIC "esp32/MC" //para recibir el json desde la nube ---> recibe por parte del MC
 #define AWS_IOT_PUBLISH_TOPIC "MC/time" // para enviar el json a la nube --->  envia mensajes al MC
@@ -60,19 +64,21 @@ static bool started = false;//iniciar ciclo
 TaskHandle_t Task1;
 
 
-
-
 // FUNCION DE LA OPERACION EN PARALELO 
 void parallelTask(void *pvParameters)  
 {
-
 
   while (!started) {
     Serial.println("Esperando iniciar semaforo");
     delay(1000);
   }
   while (started) {
-      
+      if(prueba_tiempo2){
+        Serial.print("paralelo");
+        Serial.println(millis());
+        prueba_tiempo2=false;
+      }
+
         t = resultado;
         nuevoValor = t*1000;
 
@@ -144,10 +150,11 @@ void connectAWS()
   net.setPrivateKey(AWS_CERT_PRIVATE);
 
   // Conectar al broker MQTT en el endpoint de AWS IoT
-  client.setServer(AWS_IOT_ENDPOINT, 8883);
+  client.begin(AWS_IOT_ENDPOINT, 8883,net);
 
   // Create a message handler
-  client.setCallback(messageHandler);
+  client.onMessage(messageHandler);
+ // client.setCallback(messageHandler);
 
   Serial.println("Conectando a AWS IoT");
 
@@ -164,7 +171,7 @@ void connectAWS()
   }
 
   // Suscribirse al tema
-  client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
+  client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC,1);  ///QoS 1
  // client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC2);
   
 
@@ -172,32 +179,30 @@ void connectAWS()
 }
 
 // FUNCION PARA OBTENER EL JSON DE AWS
-void messageHandler(char *topic, byte *payload, unsigned int length)
+void messageHandler(String &topic, String &payload)
 {
   Serial.print("Mensaje recibido en el tema: ");
   Serial.println(topic);
 
   // Procesar el mensaje JSON recibido
   DynamicJsonDocument doc(512);
-  DeserializationError error = deserializeJson(doc, payload, length);
+  DeserializationError error = deserializeJson(doc, payload);
 
   if (!error)
   {
     // Extraer valores del JSON y almacenarlos en variables
     resultado = doc["resultado"].as<int>();
     Serial.print("Resultado: ");
-    Serial.print(resultado);
+    Serial.println(resultado);
 
-    cambio=true;
+    //cambio=true;
     nuevoMensaje=true;
 
     if (!started)
     {
       started = true;
-      
-      
-      // INICIA la tarea en paralelo
 
+      // INICIA la tarea en paralelo
     }
   }
   else
@@ -221,7 +226,7 @@ void PublishJson()
   // Publicar el JSON en el topic "MC/time"
   //client.publish(AWS_IOT_SUBSCRIBE_TOPIC2, json.c_str());
 
-  if(client.publish(AWS_IOT_PUBLISH_TOPIC, json.c_str())) {
+  if(client.publish(AWS_IOT_PUBLISH_TOPIC, json.c_str())/*,false,1*/) {
     Serial.println("JSON enviado correctamente");
   } 
   else{
@@ -438,6 +443,12 @@ void setup()
 
 void loop()
 {
+  if(prueba_tiempo1){
+    Serial.print("loop:");
+    Serial.println(millis());
+    prueba_tiempo1=false;
+  }
+
  if (WiFi.status() != WL_CONNECTED) {
     reconnectWiFi();
   }
