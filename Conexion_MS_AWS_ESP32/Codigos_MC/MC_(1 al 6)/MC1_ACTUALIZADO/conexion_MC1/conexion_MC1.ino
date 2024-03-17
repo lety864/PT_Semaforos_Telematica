@@ -13,8 +13,8 @@ unsigned long t_comprobador=0;
 boolean nuevoCiclo=false;
 static bool cambio=false;
 
-bool prueba_tiempo1=true;
-bool prueba_tiempo2=true;
+//bool prueba_tiempo1=true;
+//bool prueba_tiempo2=true;
 
 //Vairables semáforo peatonal SP1
 unsigned long tiempoP1_1 = 0;
@@ -41,7 +41,7 @@ boolean ultimoCiclo=true;
 boolean continuar=true;
 boolean nuevoMensaje=false;
 boolean mensajeDetener=true;
-
+boolean initparalelo=true;
 /*
 Pausa-->      1
 Reinicio-->   2
@@ -73,11 +73,15 @@ void parallelTask(void *pvParameters)
     delay(1000);
   }
   while (started) {
-      if(prueba_tiempo2){
+      /*if(prueba_tiempo2){
         Serial.print("paralelo");
         Serial.println(millis());
         prueba_tiempo2=false;
-      }
+      }*/
+        if(initparalelo){
+          inicializador_paralelo(millis());
+          initparalelo=false;
+        }
 
         t = resultado;
         nuevoValor = t*1000;
@@ -195,7 +199,7 @@ void messageHandler(String &topic, String &payload)
     Serial.print("Resultado: ");
     Serial.println(resultado);
 
-    //cambio=true;
+    cambio=true;
     nuevoMensaje=true;
 
     if (!started)
@@ -276,6 +280,18 @@ void ensureMqttConnection() {  //reconectar a AWS
 
 //////////////////////////////////////////////////////////FUNCIONES SEMAFOROS////////////////////////////////////////////////////////////
 
+
+void inicializador_paralelo(unsigned long tiempo_inicio){
+
+    tiempoP1_1=tiempo_inicio;
+    tiempoP1_2=tiempo_inicio;
+    t_comprobador=tiempo_inicio;
+
+    for (int i = 0; i < 5; i++) {
+        t_luces[i] = tiempo_inicio;
+    }
+
+}
 // CAMBIO DE CICLO DENTRO DE LOS PRIMEROS 15 SEGUNDOS
 
 void comprobador(int *NuevoCiclo,int *nuevoValor){
@@ -443,11 +459,11 @@ void setup()
 
 void loop()
 {
-  if(prueba_tiempo1){
+  /*if(prueba_tiempo1){
     Serial.print("loop:");
     Serial.println(millis());
     prueba_tiempo1=false;
-  }
+  }*/
 
  if (WiFi.status() != WL_CONNECTED) {
     reconnectWiFi();
