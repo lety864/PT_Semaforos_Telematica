@@ -54,6 +54,7 @@ MQTTClient client(256);
 //PubSubClient client(net);
 
 #define AWS_IOT_SUBSCRIBE_TOPIC "esp32/MC" //para recibir el json desde la nube ---> recibe por parte del MC
+#define AWS_IOT_ACKS_TOPIC "esp32/confirmation" //para recibir los mensajes de confirmacion de la nube
 #define AWS_IOT_PUBLISH_TOPIC "MC/time" // para enviar el json a la nube --->  envia mensajes al MC
 
 
@@ -176,6 +177,7 @@ void connectAWS()
 
   // Suscribirse al tema
   client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC,1);  ///QoS 1
+   client.subscribe(AWS_IOT_ACKS_TOPIC,1);  ///QoS 1
  // client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC2);
   
 
@@ -194,26 +196,47 @@ void messageHandler(String &topic, String &payload)
 
   if (!error)
   {
-    // Extraer valores del JSON y almacenarlos en variables
-    resultado = doc["resultado"].as<int>();
-    Serial.print("Resultado: ");
-    Serial.println(resultado);
+    // Accede al objeto JSON raíz del documento
+    JsonObject obj = doc.as<JsonObject>();
 
-    cambio=true;
-    nuevoMensaje=true;
-
-    if (!started)
-    {
-      started = true;
-
-      // INICIA la tarea en paralelo
+    if(topic==AWS_IOT_ACKS_TOPIC){
+        handlerACKs(obj);
     }
+    if(topic==AWS_IOT_SUBSCRIBE_TOPIC){
+        handlerCiclos(obj);
+    }
+
   }
   else
   {
     Serial.print("Error al analizar el mensaje JSON: ");
     Serial.println(error.c_str());
   }
+}
+
+void handlerACKs( JsonObject &doc){
+    // Procesa el mensaje recibido en Topic1
+  Serial.println("Procesando mensaje para Topic1");
+  // Ejemplo: Imprimir un valor específico del JSON
+String status = doc["status"].as<String>();  // Esto asegura la conversión correcta
+  Serial.println(status);
+}
+
+void handlerCiclos( JsonObject &doc){
+        // Extraer valores del JSON y almacenarlos en variables
+      resultado = doc["resultado"].as<int>();
+      Serial.print("Resultado: ");
+      Serial.println(resultado);
+
+      cambio=true;
+      nuevoMensaje=true;
+
+      if (!started)
+      {
+        started = true;
+
+        // INICIA la tarea en paralelo
+      }
 }
 
 // FUNCION PARA ENVIAR EL JSON DE AWS ULTIMO CICLO
