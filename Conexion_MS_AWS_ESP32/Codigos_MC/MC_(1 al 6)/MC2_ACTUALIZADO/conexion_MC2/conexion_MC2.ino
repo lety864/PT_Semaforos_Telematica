@@ -1,7 +1,8 @@
 #include "secrets.h"
 #include <WiFiClientSecure.h>
-#include <PubSubClient.h>
+//#include <PubSubClient.h>
 #include <ArduinoJson.h>
+#include <MQTT.h>
 #include "WiFi.h"
 
 //SEMAFOROS
@@ -58,9 +59,11 @@ Reinicio-->   2
 
 //VARIABLES PARA LA CONEXION AWS
 WiFiClientSecure net = WiFiClientSecure();
-PubSubClient client(net);
+MQTTClient client(256);
+//PubSubClient client(net);
 
 #define AWS_IOT_SUBSCRIBE_TOPIC "esp32/MC" //para recibir el json desde la nube
+#define AWS_IOT_ACKS_TOPIC "esp32/confirmation" //para recibir los mensajes de confirmacion de la nube
 #define AWS_IOT_PUBLISH_TOPIC "MC/time" // para enviar el json a la nube
 
 // VARAIBLE PARA OBTENER EL VALOR DEL JSON
@@ -78,6 +81,11 @@ void parallelTask(void *pvParameters)
     delay(1000);
   }
   while (started) {
+
+        if(initparalelo){
+          inicializador_paralelo(millis());
+          initparalelo=false;
+        }
 
         t = resultado;
         nuevoValor = t*1000;
@@ -143,10 +151,11 @@ void connectAWS()
   net.setPrivateKey(AWS_CERT_PRIVATE);
 
   // Conectar al broker MQTT en el endpoint de AWS IoT
-  client.setServer(AWS_IOT_ENDPOINT, 8883);
+  client.setServer(AWS_IOT_ENDPOINT, 8883, net);
 
   // Create a message handler
-  client.setCallback(messageHandler);
+  client.onMessage(messageHandler);
+  //client.setCallback(messageHandler);
 
   Serial.println("Conectando a AWS IoT");
 
@@ -163,7 +172,9 @@ void connectAWS()
   }
 
   // Suscribirse al tema
-  client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
+  client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC,1);  ///QoS 1
+  client.subscribe(AWS_IOT_ACKS_TOPIC,1);  ///QoS 1
+  //client.subscribe(AWS_IOT_SUBSCRIBE_TOPIC);
 
   Serial.println("¡AWS IoT Conectado!");
 }
@@ -180,19 +191,14 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
 
   if (!error)
   {
-    // Extraer valores del JSON y almacenarlos en variables
-    resultado = doc["resultado"].as<int>();
-    Serial.print("Resultado: ");
-    Serial.print(resultado);
+    // Accede al objeto JSON raíz del documento
+    JsonObject obj = doc.as<JsonObject>();
 
-    cambio=true;
-    nuevoMensaje=true;
-
-    if (!started)
-    {
-      started = true;
-      // INICIA la tarea en paralelo
-
+    if(topic==AWS_IOT_ACKS_TOPIC){
+        handlerACKs(obj);
+    }
+    if(topic==AWS_IOT_SUBSCRIBE_TOPIC){
+        handlerCiclos(obj);
     }
   }
   else
@@ -200,6 +206,30 @@ void messageHandler(char *topic, byte *payload, unsigned int length)
     Serial.print("Error al analizar el mensaje JSON: ");
     Serial.println(error.c_str());
   }
+}
+
+void handlerACKs( JsonObject &doc){
+  // Procesa el mensaje recibido en Topic1
+  Serial.println("Procesando mensaje para Topic1");
+  // Ejemplo: Imprimir un valor específico del JSON
+  String status = doc["status"].as<String>();  // Esto asegura la conversión correcta
+  Serial.println(status);
+}
+
+void handlerCiclos( JsonObject &doc){
+      // Extraer valores del JSON y almacenarlos en variables
+      resultado = doc["resultado"].as<int>();
+      Serial.print("Resultado: ");
+      Serial.println(resultado);
+
+      cambio=true;
+      nuevoMensaje=true;
+
+      if (!started)
+      {
+        started = true;
+        //INICIA la tarea en paralelo
+      }
 }
 
 // FUNCION PARA ENVIAR EL JSON DE AWS ULTIMO CICLO
@@ -261,6 +291,21 @@ void ensureMqttConnection() {  //reconectar a AWS
 } 
 
 //////////////////////////////////////////////////////////FUNCIONES SEMAFOROS////////////////////////////////////////////////////////////
+
+void inicializador_paralelo(unsigned long tiempo_inicio){
+
+    tiempo_1=tiempo_inicio;
+    tiempo_2=tiempo_inicio;
+    tiempo_3=tiempo_inicio;
+    tiempo_4=tiempo_inicio;
+  
+    t_comprobador=tiempo_inicio;
+
+    for (int i = 0; i < 5; i++) {
+        t_luces[i] = tiempo_inicio;
+    }
+
+}
 
 // CAMBIO DE CICLO DENTRO DE LOS PRIMEROS 15 SEGUNDOS
 
