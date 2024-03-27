@@ -151,7 +151,8 @@ void connectAWS()
   net.setPrivateKey(AWS_CERT_PRIVATE);
 
   // Conectar al broker MQTT en el endpoint de AWS IoT
-  client.setServer(AWS_IOT_ENDPOINT, 8883, net);
+  //client.setServer(AWS_IOT_ENDPOINT, 8883, net);
+  client.begin(AWS_IOT_ENDPOINT, 8883, net);
 
   // Create a message handler
   client.onMessage(messageHandler);
@@ -180,14 +181,14 @@ void connectAWS()
 }
 
 // FUNCION PARA OBTENER EL JSON DE AWS
-void messageHandler(char *topic, byte *payload, unsigned int length)
+void messageHandler(String &topic, String &payload)//void messageHandler(char *topic, byte *payload, unsigned int length)
 {
   Serial.print("Mensaje recibido en el tema: ");
   Serial.println(topic);
 
   // Procesar el mensaje JSON recibido
   DynamicJsonDocument doc(512);
-  DeserializationError error = deserializeJson(doc, payload, length);
+  DeserializationError error = deserializeJson(doc, payload);
 
   if (!error)
   {
@@ -240,6 +241,7 @@ void PublishJson()
 
   // Creando JSON
   doc["UltimoCiclo_MC2"] = UltimoCiclo;
+  doc["MCID"]=2; //ID del MC
   String json;
   serializeJson(doc, json);
 
